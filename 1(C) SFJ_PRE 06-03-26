@@ -1,0 +1,108 @@
+#include <stdio.h>
+
+struct Process
+{
+    char id[5];
+    int arrival;
+    int burst;
+    int completion;
+    int turnaround;
+    int waiting;
+    int finished;
+};
+
+int main()
+{
+    int n, i, time = 0, completed = 0, shortest, found;
+    float avg_tat = 0, avg_wt = 0;   // ADDED
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    struct Process p[n];
+
+    // Input
+    for(i = 0; i < n; i++)
+    {
+        printf("Enter ProcessID, ArrivalTime, BurstTime: ");
+        scanf("%s %d %d", p[i].id, &p[i].arrival, &p[i].burst);
+        p[i].finished = 0;
+    }
+
+    while(completed < n)
+    {
+        shortest = -1;
+        found = 0;
+
+        // Find process with smallest burst time among arrived processes
+        for(i = 0; i < n; i++)
+        {
+            if(p[i].arrival <= time && p[i].finished == 0)
+            {
+                if(found == 0 || p[i].burst < p[shortest].burst)
+                {
+                    shortest = i;
+                    found = 1;
+                }
+            }
+        }
+
+        if(found == 0)
+        {
+            time++; // CPU idle
+        }
+        else
+        {
+            p[shortest].completion = time + p[shortest].burst;
+            p[shortest].turnaround = p[shortest].completion - p[shortest].arrival;
+            p[shortest].waiting = p[shortest].turnaround - p[shortest].burst;
+
+            time = p[shortest].completion;
+            p[shortest].finished = 1;
+            completed++;
+        }
+    }
+
+    printf("\nProcessID | Arrival | Burst | Completion | Turnaround | Waiting\n");
+
+    for(i = 0; i < n; i++)
+    {
+        printf("%8s | %7d | %5d | %10d | %10d | %7d\n",
+        p[i].id, p[i].arrival, p[i].burst,
+        p[i].completion, p[i].turnaround, p[i].waiting);
+
+        avg_tat += p[i].turnaround;   // ADDED
+        avg_wt += p[i].waiting;      // ADDED
+    }
+
+    avg_tat = avg_tat / n;   // ADDED
+    avg_wt = avg_wt / n;     // ADDED
+
+    printf("\nAverage Turnaround Time = %.2f", avg_tat);  // ADDED
+    printf("\nAverage Waiting Time = %.2f\n", avg_wt);    // ADDED
+
+    return 0;
+}
+
+OUTPUT:
+
+USN:1WA24CS201
+
+Enter number of processes: 5
+Enter ProcessID, ArrivalTime, BurstTime: P1 2 1
+Enter ProcessID, ArrivalTime, BurstTime: P2 1 5
+Enter ProcessID, ArrivalTime, BurstTime: P3 4 1
+Enter ProcessID, ArrivalTime, BurstTime: P4 0 6
+Enter ProcessID, ArrivalTime, BurstTime: P5 2 3
+
+ProcessID | Arrival | Burst | Completion | Turnaround | Waiting
+      P1 |       2 |     1 |          3 |          1 |       0
+      P2 |       1 |     5 |         16 |         15 |      10
+      P3 |       4 |     1 |          5 |          1 |       0
+      P4 |       0 |     6 |          7 |         11 |       5
+      P5 |       2 |     3 |         11 |          5 |       2
+
+Average Turnaround Time = 6.60
+Average Waiting Time = 3.40
+
+Process returned 0 (0x0)   execution time : 25.754 s
