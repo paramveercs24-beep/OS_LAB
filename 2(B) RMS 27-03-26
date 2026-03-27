@@ -1,0 +1,108 @@
+#include <stdio.h>
+
+int gcd(int a, int b)
+{
+    if (b == 0)
+        return a;
+    return gcd(b, a % b);
+}
+
+int lcm(int a, int b)
+{
+    return (a * b) / gcd(a, b);
+}
+
+int find_lcm(int arr[], int n)
+{
+    int result = arr[0];
+    for (int i = 1; i < n; i++)
+        result = lcm(result, arr[i]);
+    return result;
+}
+
+int main()
+{
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    int burst[n], period[n], remaining[n];
+
+    printf("Enter the CPU burst times:\n");
+    for (int i = 0; i < n; i++)
+        scanf("%d", &burst[i]);
+
+    printf("Enter the time periods:\n");
+    for (int i = 0; i < n; i++)
+        scanf("%d", &period[i]);
+
+    int hyper = find_lcm(period, n);
+    printf("LCM=%d\n", hyper);
+
+    for (int i = 0; i < n; i++)
+        remaining[i] = 0;
+
+    printf("\nRate Monotone Scheduling:\n");
+    printf("PID\tBurst\tPeriod\n");
+    for (int i = 0; i < n; i++)
+        printf("%d\t%d\t%d\n", i + 1, burst[i], period[i]);
+
+    printf("\nScheduling occurs for %d ms\n\n", hyper);
+
+    for (int t = 0; t < hyper; t++)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (t % period[i] == 0)
+                remaining[i] = burst[i];
+        }
+
+        int min_period = 1000000000, task = -1;
+
+        for (int i = 0; i < n; i++)
+        {
+            if (remaining[i] > 0 && period[i] < min_period)
+            {
+                min_period = period[i];
+                task = i;
+            }
+        }
+
+        if (task != -1)
+        {
+            printf("%dms onwards: Process %d running\n", t, task + 1);
+            remaining[task]--;
+        }
+        else
+        {
+            printf("%dms onwards: CPU is idle\n", t);
+        }
+    }
+
+    return 0;
+}
+
+OUTPUT:
+
+ PARAM VEER SINGH M
+ 1WA24CS201
+
+Enter the number of processes: 2
+Enter the CPU burst times:
+20 35
+Enter the time periods:
+50 100
+LCM=100
+
+Rate Monotone Scheduling:
+PID     Burst   Period
+1       20      50
+2       35      100
+
+Scheduling occurs for 100 ms
+
+0ms onwards: Process 1 running
+20ms onwards: Process 2 running
+50ms onwards: Process 1 running
+70ms onwards: Process 2 running
+75ms onwards: CPU is idle
