@@ -1,0 +1,99 @@
+#include <stdio.h>
+
+int main()
+{
+    int n;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    int burst[n], period[n], remaining[n], deadline[n];
+
+    printf("Enter burst times:\n");
+    for (int i = 0; i < n; i++)
+        scanf("%d", &burst[i]);
+
+    printf("Enter periods:\n");
+    for (int i = 0; i < n; i++)
+        scanf("%d", &period[i]);
+
+    int total_time = 20;
+
+    for (int i = 0; i < n; i++)
+    {
+        remaining[i] = 0;
+        deadline[i] = period[i];
+    }
+
+    printf("\nScheduling occurs for %d ms\n\n", total_time);
+
+    for (int t = 0; t < total_time; t++)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (t % period[i] == 0)
+            {
+                remaining[i] = burst[i];
+                deadline[i] = t + period[i];
+            }
+        }
+
+        int selected = -1;
+        int min_deadline = 9999;
+
+        for (int i = 0; i < n; i++)
+        {
+            if (remaining[i] > 0 && deadline[i] < min_deadline)
+            {
+                min_deadline = deadline[i];
+                selected = i;
+            }
+        }
+
+        if (selected == -1)
+            printf("%dms: CPU is idle.\n", t);
+        else
+        {
+            printf("%dms: Task %d is running.\n", t, selected + 1);
+            remaining[selected]--;
+        }
+    }
+
+    return 0;
+}
+
+OUTPUT:
+
+ PARAM VEER SINGH M
+ 1WA24CS201
+
+Enter number of processes: 3
+Enter burst times:
+2 3 2
+Enter periods:
+5 20 10
+
+Scheduling occurs for 20 ms
+
+0ms: Task 1 is running.
+1ms: Task 1 is running.
+2ms: Task 3 is running.
+3ms: Task 3 is running.
+4ms: Task 2 is running.
+5ms: Task 1 is running.
+6ms: Task 1 is running.
+7ms: Task 2 is running.
+8ms: Task 2 is running.
+9ms: CPU is idle.
+10ms: Task 1 is running.
+11ms: Task 1 is running.
+12ms: Task 3 is running.
+13ms: Task 3 is running.
+14ms: CPU is idle.
+15ms: Task 1 is running.
+16ms: Task 1 is running.
+17ms: CPU is idle.
+18ms: CPU is idle.
+19ms: CPU is idle.
+
+Process returned 0 (0x0)   execution time : 13.243 s
+Press any key to continue.
