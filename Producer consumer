@@ -1,0 +1,143 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define SIZE 5
+
+int buffer[SIZE];
+int in = 0, out = 0;
+int count = 0;
+
+int mutex = 1, full = 0, empty = SIZE;
+
+void wait(int *s)
+{
+    (*s)--;
+}
+
+void signal(int *s)
+{
+    (*s)++;
+}
+
+void produce(int item)
+{
+    wait(&empty);
+    wait(&mutex);
+
+    buffer[in] = item;
+    printf("Produced: %d\n", item);
+    in = (in + 1) % SIZE;
+    count++;
+
+    signal(&mutex);
+    signal(&full);
+}
+
+void consume()
+{
+    wait(&full);
+    wait(&mutex);
+
+    int item = buffer[out];
+    printf("Consumed: %d\n", item);
+    out = (out + 1) % SIZE;
+    count--;
+
+    signal(&mutex);
+    signal(&empty);
+}
+
+int main()
+{
+    int choice, item;
+
+    while(1)
+    {
+        printf("\n1. Produce\n2. Consume\n3. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+
+        switch(choice)
+        {
+            case 1:
+                if(count == SIZE)
+                {
+                    printf("Buffer Full!\n");
+                }
+                else
+                {
+                    printf("Enter item: ");
+                    scanf("%d", &item);
+                    produce(item);
+                }
+                break;
+
+            case 2:
+                if(count == 0)
+                {
+                    printf("Buffer Empty!\n");
+                }
+                else
+                {
+                    consume();
+                }
+                break;
+
+            case 3:
+                exit(0);
+
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+
+    return 0;
+}
+
+OUTPUT:
+1WA24CS201
+
+1. Produce
+2. Consume
+3. Exit
+Enter choice: 1
+Enter item: 1
+Produced: 1
+
+1. Produce
+2. Consume
+3. Exit
+Enter choice: 1
+Enter item: 2
+Produced: 2
+
+1. Produce
+2. Consume
+3. Exit
+Enter choice: 1
+Enter item: 3
+Produced: 3
+
+1. Produce
+2. Consume
+3. Exit
+Enter choice: 2
+Consumed: 1
+
+1. Produce
+2. Consume
+3. Exit
+Enter choice: 2
+Consumed: 2
+
+1. Produce
+2. Consume
+3. Exit
+Enter choice: 2
+Consumed: 3
+
+1. Produce
+2. Consume
+3. Exit
+Enter choice: 2
+Buffer Empty!
